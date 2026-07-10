@@ -1,98 +1,139 @@
-# vinext-starter
+# Payment International POS Geolocation Intelligence
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+Payment International POS Geolocation Intelligence is a demo analytics app for identifying when a POS device is operating somewhere other than its registered/onboarded location.
+
+The app starts with a device record, transaction event, customer behavior history, and a set of possible shop locations. It then estimates the most likely physical shop/geolocation for the POS device and highlights whether the device should stay attached to its current registered location or be reviewed for correction.
+
+## What The App Does
+
+- Simulates monitored POS devices across Dubai-like trade areas such as JLT, Silicon Oasis, Downtown, Deira, Dubai Marina, and Business Bay.
+- Uses synthetic customer transaction history to infer where a device is likely operating.
+- Scores possible shop ties using customer orbit, prior transaction areas, brand history, ticket amount fit, time-of-day behavior, and device-record distance.
+- Shows a dynamic map with registered POS location, inferred POS/shop location, customer home/work, and candidate shops.
+- Provides drill-down tables explaining every scoring signal and contribution.
+- Flags recent transactions and devices that appear inaccurate versus onboarding data.
+- Includes dashboards for device movement, correction-risk devices, category mix, review workload, and raw device/customer tables.
+
+## Key Screens
+
+- **Live correction**: Simulate a POS transaction, inspect the inferred geolocation, and compare candidate shops.
+- **90-day transactions**: Review tagged geolocations and flagged transactions.
+- **Device movement**: Separate devices that are still at the same store from devices that appear to have moved to a different store or merchant location.
+- **Category charts**: View bar and pie charts for merchant categories, review workload, and correction risk.
+- **Devices data**: Inspect the monitored POS device dataset.
+- **Customers data**: Inspect modeled customers and their transaction-history-derived behavior.
+
+## Simulation Inputs
+
+Click **Simulate new transaction** in the app to open an editable modal. You can adjust:
+
+- POS device ID
+- registered/onboarded area
+- registered latitude and longitude
+- customer sample
+- observed merchant brand
+- transaction amount
+- transaction hour
+- random seed
+
+Changing these values recalculates the candidate shops, inferred lat/lng, confidence score, and map markers.
+
+## How The Scoring Works
+
+Each candidate shop receives a confidence score based on weighted signals:
+
+- customer home/work orbit distance
+- customer frequent-area behavior
+- repeat brand behavior
+- current transaction ticket amount fit
+- time-of-day fit
+- current device record fit
+- customer history area visits
+- customer history brand visits
+- same-shop repeats
+- proximity to historical customer transactions
+- customer historical ticket fit
+- high-density merchant penalty
+
+The current implementation uses deterministic synthetic data generated in `app/page.tsx`. It does not connect to production transaction systems, GPS hardware, card-network data, or a real merchant master yet.
+
+## Tech Stack
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Vinext / Vite
+- Cloudflare Worker-compatible build output
 
 ## Prerequisites
 
 - Node.js `>=22.13.0`
+- npm
 
-## Quick Start
+## Local Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/AppSpoke-Go/PaymentInternational.git
+cd PaymentInternational
+```
+
+Install dependencies:
 
 ```bash
 npm install
+```
+
+Start the local development server:
+
+```bash
 npm run dev
+```
+
+Open the local URL printed by the dev server, usually:
+
+```text
+http://localhost:3000/
+```
+
+If port `3000` is already in use, Vinext will choose another port such as `3001`.
+
+## Validation Commands
+
+Run lint:
+
+```bash
+npm run lint
+```
+
+Run a production build:
+
+```bash
 npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+Run the test script:
 
-## Included Shape
-
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+npm test
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+## Useful Project Files
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+- `app/page.tsx`: main app, simulation data, scoring logic, views, tables, and charts
+- `app/globals.css`: UI styling, map, dashboards, tables, modal, and charts
+- `app/layout.tsx`: app shell and metadata
+- `package.json`: scripts and dependencies
+- `.openai/hosting.json`: Sites hosting configuration
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+## Notes
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+This is currently a front-end analytics prototype with synthetic data. To connect it to real operations data, replace the generated datasets with production feeds such as:
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+- terminal onboarding records
+- merchant master/shop geocodes
+- customer transaction history
+- transaction authorization events
+- device movement or exception queues
