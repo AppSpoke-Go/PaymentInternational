@@ -1,5 +1,7 @@
 # Payment International POS Geolocation Intelligence
 
+[Live demo: Payment International POS Geolocation Intelligence](https://paymentinternational.appspoke-go-payment.workers.dev)
+
 Payment International POS Geolocation Intelligence is a demo analytics app for identifying when a POS device is operating somewhere other than its registered/onboarded location.
 
 The app starts with a device record, transaction event, customer behavior history, and a set of possible shop locations. It then estimates the most likely physical shop/geolocation for the POS device and highlights whether the device should stay attached to its current registered location or be reviewed for correction.
@@ -102,11 +104,7 @@ If port `3000` is already in use, Vinext will choose another port such as `3001`
 
 ## Hosted Demo
 
-Stable demo URL:
-
-```text
-https://paymentinternational.appspoke-go-payment.workers.dev
-```
+Stable demo URL: [https://paymentinternational.appspoke-go-payment.workers.dev](https://paymentinternational.appspoke-go-payment.workers.dev)
 
 The app is deployed as a Cloudflare Worker named `paymentinternational`.
 If the URL was created recently and does not resolve immediately on a network,
