@@ -100,6 +100,18 @@ http://localhost:3000/
 
 If port `3000` is already in use, Vinext will choose another port such as `3001`.
 
+## Hosted Demo
+
+Stable demo URL:
+
+```text
+https://payment-international.appspoke-go-payment.workers.dev
+```
+
+The app is deployed as a Cloudflare Worker named `payment-international`.
+If the URL was created recently and does not resolve immediately on a network,
+wait a few minutes for DNS propagation and retry.
+
 ## Validation Commands
 
 Run lint:
@@ -118,6 +130,12 @@ Run the test script:
 
 ```bash
 npm test
+```
+
+Deploy to Cloudflare Workers:
+
+```bash
+npm run deploy:worker
 ```
 
 ## Useful Project Files
