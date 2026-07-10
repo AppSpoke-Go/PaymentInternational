@@ -105,10 +105,10 @@ If port `3000` is already in use, Vinext will choose another port such as `3001`
 Stable demo URL:
 
 ```text
-https://payment-international.appspoke-go-payment.workers.dev
+https://paymentinternational.appspoke-go-payment.workers.dev
 ```
 
-The app is deployed as a Cloudflare Worker named `payment-international`.
+The app is deployed as a Cloudflare Worker named `paymentinternational`.
 If the URL was created recently and does not resolve immediately on a network,
 wait a few minutes for DNS propagation and retry.
 
